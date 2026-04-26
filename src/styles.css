@@ -71,9 +71,9 @@ input {
 .app-container {
   position: relative;
   z-index: 3;
-  width: min(900px, calc(100% - 32px));
+  width: min(900px, calc(100% - 20px));
   margin: -62px auto 0;
-  padding: 24px;
+  padding: 24px 12px;
 }
 
 .name-card {
@@ -322,8 +322,8 @@ input {
 
 @media (max-width: 720px) {
   .app-container {
-    width: min(100%, calc(100% - 20px));
-    padding: 24px 18px;
+    width: min(100%, calc(100% - 12px));
+    padding: 24px 8px;
   }
 
   .score-row {
