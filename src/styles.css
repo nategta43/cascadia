@@ -1,37 +1,388 @@
-.hero-content h1 {
-    display: none;
+:root {
+  color-scheme: light;
+  font-family: Verdana, Arial, sans-serif;
+  background: #f6f3ea;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-    font-family: Verdana;
-    background: url('bg2.png');
-    background-attachment: fixed;
-    background-position: top center;
+  margin: 0;
+  background: #f6f3ea;
 }
 
-.animal-label {
-    font-size: 0.7rem;
-    letter-spacing: normal;
+button,
+input {
+  font: inherit;
 }
 
-.animal-info {
-    gap: 10px;
+.app-shell {
+  min-height: 100vh;
+  color: #10251b;
+  background: url("/bg2.png") no-repeat top center fixed;
+  background-size: cover;
+}
+
+.hero-background {
+  position: relative;
+  height: 135px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.hero-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.2));
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 14px 18px 0;
+  text-align: center;
+  color: white;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+.hero-content h1 {
+  margin: -10px 0 0;
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+  display: none;
+}
+
+.hero-subtle {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.8;
+  letter-spacing: 0.04em;
+}
+
+.app-container {
+  position: relative;
+  z-index: 3;
+  width: min(900px, calc(100% - 32px));
+  margin: -62px auto 0;
+  padding: 24px;
+}
+
+.name-card {
+  margin-bottom: 24px;
+  padding: 10px 14px;
+  border: 2px solid #b7c8b9;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fffffb, #f5f3e8);
+  box-shadow: 0 6px 14px rgba(20, 39, 29, 0.1);
+}
+
+.player-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+}
+
+.edit-name-button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 999px;
+  background: #e8ece4;
+  color: #4d5d52;
+  cursor: pointer;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.player-name-display {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #111;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.player-name-display:hover {
+  color: #1f6b3d;
+}
+
+.player-name-input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 10px;
+  border: 2px solid #9fb7a4;
+  border-radius: 10px;
+  outline: 0;
+  background: white;
+  color: #111;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.player-name-input:focus {
+  border-color: #2f8e2e;
+  box-shadow: 0 0 0 4px rgba(47, 142, 46, 0.1);
+}
+
+.score-list {
+  display: grid;
+  gap: 14px;
 }
 
 .score-row {
-    flex-wrap: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 18px;
+  min-height: 96px;
+  padding: 12px 18px;
+  border: 1px solid #dedbd2;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 6px 15px rgba(20, 39, 29, 0.1);
+}
+
+.animal-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.wildlife-image,
+.nature-token-icon {
+  width: 76px;
+  height: 76px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.nature-token-icon {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 35% 35%, #98bf63, #5f833b);
+  font-size: 2.2rem;
 }
 
 .animal-stats {
-    white-space: nowrap;
-    min-width: 150px;
+  display: flex;
+  white-space: nowrap;
+  flex-direction: column;
+  justify-content: center;
 }
 
-@media screen and (max-width: 390px) {
-    body {
-        font-size: 0.8rem;
-    }
-    .animal-label, .animal-info {
-        gap: 5px;
-    }
+.animal-value {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #111;
+  line-height: 1;
+}
+
+.animal-label {
+  margin-top: 4px;
+  font-size: 0.7rem;
+  color: #8a8a86;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.round-button,
+.check-button {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 900;
+  transition: transform 120ms ease, opacity 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.round-button {
+  background: #ece9e3;
+  color: #1e3028;
+  font-size: 2rem;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.round-button:hover,
+.check-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.draft-value {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border: 2px solid #aeb4ae;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.draft-value.active {
+  border-color: #2f8e2e;
+  box-shadow: 0 0 0 5px rgba(47, 142, 46, 0.1);
+}
+
+.check-button {
+  background: #d6d6d3;
+  color: #8a8a86;
+  font-size: 2.1rem;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.check-button.active {
+  background: #47a13f;
+  color: white;
+}
+
+.check-button:disabled {
+  cursor: not-allowed;
+}
+
+.reset-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: 30px;
+  padding: 20px;
+  border: 1px solid #f0b8b1;
+  border-radius: 16px;
+  background: #fff0ed;
+  color: #af241a;
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.reset-button span {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.save-note {
+  margin: 20px 0 0;
+  color: #6d6d68;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.hidden-total {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .app-container {
+    width: min(100%, calc(100% - 20px));
+    padding: 24px 18px;
+  }
+
+  .score-row {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .animal-info {
+    gap: 12px;
+  }
+
+  .wildlife-image,
+  .nature-token-icon {
+    width: 58px;
+    height: 58px;
+  }
+
+  .animal-value {
+    font-size: 1.8rem;
+  }
+
+  .animal-label {
+    font-size: 0.8rem;
+  }
+
+  .stepper {
+    gap: 7px;
+  }
+
+  .round-button,
+  .check-button {
+    width: 42px;
+    height: 42px;
+    font-size: 1.45rem;
+  }
+
+  .draft-value {
+    width: 52px;
+    height: 52px;
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-background {
+    height: 150px;
+  }
+
+  .hero-content {
+    padding-top: 20px;
+  }
+
+  .app-container {
+    margin-top: -24px;
+    border-radius: 26px 26px 0 0;
+  }
+
+  .name-card {
+    padding: 10px 12px;
+  }
+
+  .score-row {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .stepper {
+    justify-content: space-between;
+    width: 100%;
+  }
 }
