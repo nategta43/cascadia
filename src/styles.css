@@ -36,7 +36,6 @@ input {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.2));
 }
 
 .hero-content {
@@ -63,6 +62,7 @@ input {
   font-weight: 500;
   opacity: 0.8;
   letter-spacing: 0.04em;
+  display: none;
 }
 
 .app-container {
@@ -164,6 +164,7 @@ input {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -186,9 +187,9 @@ input {
 
 .animal-stats {
   display: flex;
-  white-space: nowrap;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 .animal-value {
@@ -204,13 +205,18 @@ input {
   color: #8a8a86;
   font-weight: 600;
   letter-spacing: 0em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stepper {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 12px;
   flex: 0 0 auto;
+  min-width: max-content;
 }
 
 .round-button,
@@ -382,7 +388,6 @@ input {
   }
 
   .stepper {
-    justify-content: space-between;
-    width: 100%;
+    justify-content: flex-start;
   }
 }

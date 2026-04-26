@@ -29,7 +29,7 @@ const categories = [
   { key: "fox", label: "Fox", image: "/wildlife/fox.png" },
   { key: "hawk", label: "Hawk", image: "/wildlife/hawk.png" },
   { key: "salmon", label: "Salmon", image: "/wildlife/salmon.png" },
-  { key: "natureTokens", label: "Nature Tokens", fallback: "🌲" },
+  { key: "natureTokens", label: "Nature", fallback: "🌲" },
 ];
 
 export function sumScoreValues(values) {
