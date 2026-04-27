@@ -6,12 +6,12 @@ const STORAGE_KEY = "cascadia-scorepad-v2";
 export const initialScore = {
   playerName: "",
   wildlife: {
-    bear: 0,
-    elk: 0,
-    fox: 0,
-    hawk: 0,
-    salmon: 0,
-    natureTokens: 0,
+    bear: 1,
+    elk: 1,
+    fox: 1,
+    hawk: 1,
+    salmon: 1,
+    natureTokens: 2,
   },
   habitats: {
     forest: 0,
@@ -29,8 +29,30 @@ const categories = [
   { key: "fox", label: "Fox", image: "/wildlife/fox.png" },
   { key: "hawk", label: "Hawk", image: "/wildlife/hawk.png" },
   { key: "salmon", label: "Salmon", image: "/wildlife/salmon.png" },
-  { key: "natureTokens", label: "Nature", fallback: "🌲" },
+  { key: "natureTokens", label: "Nature", image: "/wildlife/nature.png" },
 ];
+
+function createEmptyHistory() {
+  return categories.reduce((history, category) => {
+    history[category.key] = [];
+    return history;
+  }, {});
+}
+
+function createStartingHistory(wildlifeValues) {
+  return categories.reduce((history, category) => {
+    history[category.key] = [
+      {
+        txId: 1,
+        delta: 0,
+        total: Number(wildlifeValues?.[category.key] || 0),
+        timestamp: new Date().toISOString(),
+        isInitial: true,
+      },
+    ];
+    return history;
+  }, {});
+}
 
 export function sumScoreValues(values) {
   return Object.values(values).reduce((sum, value) => sum + Number(value || 0), 0);
@@ -83,12 +105,16 @@ function WildlifeIcon({ label, image, fallback }) {
   );
 }
 
-function StepperInput({ label, image, fallback, value, onAccept }) {
+function StepperInput({ label, image, fallback, value, onAccept, onOpenHistory }) {
   const [draftValue, setDraftValue] = useState(0);
   const hasPendingChange = draftValue !== 0;
+  const minDraftValue = -Number(value || 0);
+  const canDecrement = draftValue > minDraftValue;
 
   const increment = () => setDraftValue((current) => current + 1);
-  const decrement = () => setDraftValue((current) => current - 1);
+  const decrement = () => {
+    setDraftValue((current) => Math.max(minDraftValue, current - 1));
+  };
 
   const acceptValue = () => {
     if (!hasPendingChange) return;
@@ -99,7 +125,15 @@ function StepperInput({ label, image, fallback, value, onAccept }) {
   return (
     <article className="score-row">
       <div className="animal-info">
-        <WildlifeIcon label={label} image={image} fallback={fallback} />
+        <button
+          type="button"
+          className="wildlife-icon-button"
+          onClick={onOpenHistory}
+          aria-label={`Show ${label} history`}
+          title={`Show ${label} history`}
+        >
+          <WildlifeIcon label={label} image={image} fallback={fallback} />
+        </button>
         <div className="animal-stats">
           <div className="animal-value">{value}</div>
           <div className="animal-label">{label}</div>
@@ -111,6 +145,7 @@ function StepperInput({ label, image, fallback, value, onAccept }) {
           type="button"
           className="round-button muted"
           onClick={decrement}
+          disabled={!canDecrement}
           aria-label={`Subtract from ${label}`}
         >
           −
@@ -147,9 +182,15 @@ function StepperInput({ label, image, fallback, value, onAccept }) {
 export default function CascadiaScorepadApp() {
   const [score, setScore] = useState(initialScore);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [historyByCategory, setHistoryByCategory] = useState(() =>
+    createStartingHistory(initialScore.wildlife),
+  );
+  const [activeHistoryKey, setActiveHistoryKey] = useState(null);
 
   useEffect(() => {
-    setScore(getSavedScore());
+    const savedScore = getSavedScore();
+    setScore(savedScore);
+    setHistoryByCategory(createStartingHistory(savedScore.wildlife));
   }, []);
 
   useEffect(() => {
@@ -157,9 +198,42 @@ export default function CascadiaScorepadApp() {
   }, [score]);
 
   const wildlifeTotal = useMemo(() => sumScoreValues(score.wildlife), [score.wildlife]);
+  const activeHistoryCategory = useMemo(
+    () => categories.find((category) => category.key === activeHistoryKey),
+    [activeHistoryKey],
+  );
+  const activeHistory = activeHistoryKey ? historyByCategory[activeHistoryKey] || [] : [];
 
   const handleAcceptWildlifeScore = (key, amount) => {
-    setScore((current) => addWildlifeScore(current, key, amount));
+    setScore((currentScore) => {
+      const currentValue = Number(currentScore.wildlife[key] || 0);
+      const nextScore = addWildlifeScore(currentScore, key, amount);
+      const nextValue = Number(nextScore.wildlife[key] || 0);
+      const appliedDelta = nextValue - currentValue;
+
+      if (appliedDelta !== 0) {
+        setHistoryByCategory((currentHistory) => {
+          const existingEntries = currentHistory[key] || [];
+          const nextTxId = existingEntries.length + 1;
+
+          return {
+            ...currentHistory,
+            [key]: [
+              ...existingEntries,
+              {
+                txId: nextTxId,
+                delta: appliedDelta,
+                total: nextValue,
+                timestamp: new Date().toISOString(),
+                isInitial: false,
+              },
+            ],
+          };
+        });
+      }
+
+      return nextScore;
+    });
   };
 
   const updatePlayerName = (event) => {
@@ -174,20 +248,33 @@ export default function CascadiaScorepadApp() {
   };
 
   const resetScores = () => {
+    const shouldReset = window.confirm("Reset all wildlife scores? This cannot be undone.");
+    if (!shouldReset) return;
+
     setScore((current) => ({
       ...initialScore,
       playerName: current.playerName,
     }));
+    setHistoryByCategory(createStartingHistory(initialScore.wildlife));
+    setActiveHistoryKey(null);
+  };
+
+  const openHistory = (key) => {
+    setActiveHistoryKey(key);
+  };
+
+  const closeHistory = () => {
+    setActiveHistoryKey(null);
   };
 
   return (
     <main className="app-shell">
-      <div className="hero-background">
+      {/* <div className="hero-background">
         <header className="hero-content">
           <h1>Cascadia Scorepad</h1>
           <p className="hero-subtle">designed and built by Nate + Claude</p>
         </header>
-      </div>
+      </div> */}
 
       <div className="app-container">
         <section className="name-card" aria-label="Player name">
@@ -235,20 +322,69 @@ export default function CascadiaScorepadApp() {
               fallback={category.fallback}
               value={score.wildlife[category.key]}
               onAccept={(amount) => handleAcceptWildlifeScore(category.key, amount)}
+              onOpenHistory={() => openHistory(category.key)}
             />
           ))}
         </section>
 
         <button type="button" className="reset-button" onClick={resetScores}>
           <span aria-hidden="true">↻</span>
-          Reset Scorepad
         </button>
 
-        <p className="save-note">Your scores are saved automatically on this device.</p>
         <p className="hidden-total" aria-label={`Current wildlife total is ${wildlifeTotal}`}>
           Wildlife total: {wildlifeTotal}
         </p>
       </div>
+
+      {activeHistoryCategory ? (
+        <div className="history-modal-backdrop" role="presentation" onClick={closeHistory}>
+          <section
+            className="history-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${activeHistoryCategory.label} history`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="history-header">
+              <h2>{activeHistoryCategory.label} History</h2>
+              <button
+                type="button"
+                className="history-close-button"
+                onClick={closeHistory}
+                aria-label="Close history"
+              >
+                ×
+              </button>
+            </header>
+
+            {activeHistory.length > 0 ? (
+              <ul className="history-list">
+                {activeHistory.map((entry) => (
+                  <li className="history-item" key={`${activeHistoryKey}-${entry.txId}-${entry.timestamp}`}>
+                    <span className="history-id">#{entry.txId}</span>
+                    {entry.isInitial ? (
+                      <span className="history-delta neutral">Start</span>
+                    ) : (
+                      <span className={entry.delta > 0 ? "history-delta increase" : "history-delta decrease"}>
+                        {entry.delta > 0 ? `+${entry.delta}` : entry.delta}
+                      </span>
+                    )}
+                    <span className="history-total-value">Total: {entry.total}</span>
+                    <time className="history-time" dateTime={entry.timestamp}>
+                      {new Date(entry.timestamp).toLocaleTimeString([], {
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                    </time>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="history-empty">No changes yet for this row.</p>
+            )}
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
